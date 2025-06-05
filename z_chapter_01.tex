@@ -1,0 +1,649 @@
+\documentclass[handout,aspectratio=169]{beamer}
+\input{commands_pkg}
+\input{commands_math}
+\input{commands_theme}
+\usepackage{amsmath}
+\graphicspath{{figs/fig00/}}
+%-----------------
+%	TITLE
+%-----------------
+\title{
+Chapter 01: Fundamentals of Inference
+}
+\author{\bf Notes by Kumar Anurag}
+\date{}
+
+%-----------------
+%	SUBTITLE
+%-----------------
+\subtitle{
+Probabilistic Artificial Intelligence
+}
+
+\begin{document}
+
+%-----------------
+%	TITLE PAGE
+%-----------------
+{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{figs/titlepic.png}}
+	\begin{frame}[plain,noframenumbering]
+		\maketitle
+	\end{frame}}
+
+
+%-----------------------
+%	PRESENTATION SLIDES
+%-----------------------
+
+\begin{frame}{Why Probability in AI?}
+	\begin{columns}
+		\column{0.58\textwidth}
+		\textbf{Imagine this:}\\[0.3em]
+		A robot assistant looks outside — it's cloudy.  
+		The forecast says 60\% chance of rain.\\[0.8em]
+		Should it:\\
+		\begin{itemize}
+			\item Carry an umbrella for you?
+			\item Reschedule your outdoor workout?
+			\item Ignore the forecast?
+		\end{itemize}
+		
+		\vspace{0.5em}
+		\textbf{The robot doesn’t know for sure—it must \textit{reason under uncertainty}.}
+		    
+		\column{0.4\textwidth}
+		\includegraphics[width=\linewidth]{figs/robot_rain.png}
+	\end{columns}
+	
+	\vspace{1em}
+	\textbf{Why Probabilistic AI?} \\
+	Because AI needs a mathematical framework to model \textit{beliefs}, not just facts.
+\end{frame}
+
+\begin{frame}{What is a Probability Space?}
+	    
+	\textbf{A probability space is a mathematical world for modeling uncertainty.}
+	\vspace{1em}
+	\begin{columns}
+		\column{0.58\textwidth}
+		\[
+			(\Omega, \mathcal{A}, P)
+		\]
+		\column{0.4\textwidth}
+		\includegraphics[width=\linewidth]{figs/space.jpg}
+	\end{columns}
+	\begin{itemize}
+		\item $\Omega$ – All possible outcomes. \\
+		      \textit{Example:} $\Omega = \{\text{Heads}, \text{Tails}\}$
+		\item $\mathcal{A}$ – Set of events (measurable subsets of $\Omega$). \\
+		      \textit{Example:} $\{\emptyset, \{\text{Heads}\}, \{\text{Tails}\}, \Omega\}$
+		\item $P$ – A function that assigns probabilities to events in $\mathcal{A}$, satisfying:\\
+		      \quad $P(\Omega) = 1$, \quad $P(E) \geq 0$, \quad countable additivity
+	\end{itemize}
+	
+	\vspace{0.5em}
+	\textbf{Probability is a mathematical framework to measure uncertainty.}
+\end{frame}
+
+\begin{frame}{Sigma-Algebra}
+  \begin{figure}[htbp]
+		\centering
+		\includegraphics[width=\textwidth]{figs/sigma_algebra.png}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{What is a Random Variable?}
+	\textbf{A Random Variable (RV) assigns a number to each outcome in a sample space.}
+	
+	\vspace{1em}
+	\begin{columns}
+		\column{0.6\textwidth}
+		\begin{itemize}
+			\item Technically: A measurable function $X: \Omega \rightarrow \mathbb{R}$
+			\item $X$ is the variable; $x$ is the value it takes (realization)
+			\item \textit{Example:} Tossing a coin\\
+			      \quad $\Omega = \{\text{Heads}, \text{Tails}\}$\\
+			      \quad Define $X(\text{Heads}) = 1$, $X(\text{Tails}) = 0$
+		\end{itemize}
+		
+		\vspace{0.5em}
+		\textbf{RV turns uncertain outcomes into usable numbers.}
+		
+		\column{0.4\textwidth}
+		\includegraphics[width=\linewidth]{figs/rv_mapping.png}
+	\end{columns}
+\end{frame}
+
+\begin{frame}{What is a Probability Distribution?}
+	\textbf{A probability distribution tells us how likely each outcome is.}
+	\begin{columns}
+		\column{0.6\textwidth}
+		\begin{itemize}
+			\item For discrete random variables -> we use a \textbf{PMF (Probability Mass Function)}. \textit{Example:} Rolling a die \\
+			      \quad $P(X=3) = \frac{1}{6}$
+			\item For continuous random variables -> use a \textbf{PDF (Probability Density Function)}. \textit{Example:} Gaussian distribution over real numbers\\
+			      \quad $P(X = x) = 0$, but we can compute $P(a < X < b)$
+			                      
+		\end{itemize}
+		              
+		\column{0.4\textwidth}
+		\includegraphics[width=\linewidth]{figs/probability_distribution.png}
+	\end{columns}
+	    
+	\begin{itemize}
+		\item \textbf{CDF (Cumulative Distribution Function)} gives probability up to a value:\\
+		      \quad $F(x) = P(X \leq x)$
+	\end{itemize}
+	\vspace{0.5em}
+	\textbf{Distributions summarize how random variables behave.}
+\end{frame}
+
+\begin{frame}{What is a Continuous Distribution?}
+	\textbf{In a continuous world, outcomes can't be counted — they fill an entire range.}
+	
+	\vspace{0.8em}
+	\textbf{Discrete:} When we roll a die -> only 6 outcomes.\\
+	\textbf{Continuous:} When we measure temperature -> infinite possibilities!
+	
+	\vspace{1em}
+	\textbf{Key idea:} We talk about probability \textit{over intervals}, not single points.
+	
+	\vspace{1em}
+	\[
+		P(X = x) = 0 \quad \text{but} \quad P(a < X < b) > 0
+	\]
+	
+	\vspace{0.8em}
+	\textbf{Example:} Height of a person: $P(X = 170 \text{cm}) = 0$,\\
+	but $P(169.5 < X < 170.5) > 0$
+\end{frame}
+
+\begin{frame}{Probability Density Function (PDF)}
+	\textbf{A PDF describes how "dense" the probability is at each point.}
+	
+	\vspace{1em}
+	\[
+		P(a < X < b) = \int_a^b f(x) \, dx
+	\]
+	\textit{Where $f(x)$ is the PDF (e.g., bell curve)}
+	
+	\vspace{1em}
+	\begin{columns}
+		\column{0.6\textwidth}
+		\begin{itemize}
+			\item The PDF can be greater than 1! It’s not probability itself
+			\item The \textbf{area under the curve} = probability
+			\item Total area under the PDF = 1
+		\end{itemize}
+		  
+		\column{0.4\textwidth}
+		\includegraphics[width=\linewidth]{figs/pdf.png}
+	\end{columns}
+	  
+	
+	\vspace{0.5em}
+	\textbf{Think of it like mass spread over a continuous line.}
+\end{frame}
+
+\begin{frame}{Joint Probability}
+	\textbf{Joint probability} describes the chance of two things happening together.
+	
+	\vspace{1em}
+	\begin{columns}
+		\column{0.6\textwidth}
+		\textbf{Example:} Weather ($X$) and whether I carry an umbrella ($Y$)
+		  
+		\vspace{0.5em}
+		\[
+			P(X = \text{Rain},\; Y = \text{Yes}) = 0.3
+		\]
+		  
+		\vspace{0.5em}
+		\textbf{Notation:} $P(X, Y)$ or $P(X = x,\; Y = y)$
+		
+		\vspace{1em}
+		\textbf{Joint distribution} is like a table of co-occurring probabilities.
+		  
+		\vspace{0.5em}
+		  
+		\column{0.4\textwidth}
+		\includegraphics[width=\linewidth]{figs/joint_probability_diagram.png}
+	\end{columns}
+	  
+	\textit{We'll use this table on the next slide to compute marginal probabilities.}
+\end{frame}
+
+\begin{frame}{Marginalization (Sum Rule)}
+	\textbf{Marginal probability} is the probability of one variable, \textit{ignoring} the other.
+	
+	\vspace{1em}
+	\begin{align*}
+		P(X = \text{Rain}) & = \sum_y P(X = \text{Rain}, Y = y)                               \\
+		                   & = P(X=\text{Rain}, Y=\text{Yes}) + P(X=\text{Rain}, Y=\text{No}) 
+	\end{align*}
+	\vspace{0.5em}
+	\textbf{Example:} Add across all umbrella choices.
+	
+	\vspace{0.5em}
+	This process is called \textit{marginalization} — you're "summing out" a variable.
+	
+	\vspace{1em}
+	\textbf{Visual:} We'll use a probability table and highlight the row/column.
+\end{frame}
+
+\begin{frame}{Conditional Probability}
+  \textbf{Conditional probability is the probability of an event, given that another has happened.}
+
+  \vspace{1em}
+  \begin{columns}
+    \column{0.6\textwidth}
+\[
+    P(A \mid B) = \frac{P(A \cap B)}{P(B)} \quad \text{(if } P(B) > 0\text{)}
+  \]
+
+  \vspace{1em}
+  \textbf{Example:} What is the chance it’s raining \textit{given} we see someone with an umbrella?
+  
+    \column{0.4\textwidth}
+\includegraphics[width=0.6\linewidth]{figs/conditional.png}
+    
+\end{columns}
+  
+
+  \vspace{1em}
+  \textbf{Intuition (by my mathematics teacher):} We are zooming in on the part of the world where $B$ is true, and asking how often $A$ also happens.
+\end{frame}
+
+\begin{frame}{Bayes' Rule: Flipping the Condition}
+  \textbf{The product rule:}
+  \[
+    P(A \cap B) = P(A \mid B) \cdot P(B)
+  \]
+
+  \vspace{1em}
+  \textbf{Bayes' Rule:}
+  \[
+    P(A \mid B) = \frac{P(B \mid A) \cdot P(A)}{P(B)}
+  \]
+
+  \vspace{1em}
+  \textbf{Why it matters:} Sometimes it's easier to compute $P(B \mid A)$ and $P(A)$ than $P(A \mid B)$ directly.
+
+  \vspace{1em}
+  \textbf{Used in:}
+  \begin{itemize}
+    \item Medical diagnosis
+    \item Spam filters
+    \item Weather prediction
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Understanding Independence}
+  \textbf{Two events are independent if knowing one tells us nothing about the other.}
+
+  \vspace{1em}
+  \[
+    A \perp B \quad \Leftrightarrow \quad P(A \cap B) = P(A) \cdot P(B)
+  \]
+
+  \vspace{1em}
+  \begin{columns}
+    \column{0.6\textwidth}
+\textbf{Example:} Tossing two fair coins:\\
+  \quad $A$: First coin is heads \quad $P(A) = 0.5$\\
+  \quad $B$: Second coin is heads \quad $P(B) = 0.5$\\
+  \quad $P(A \cap B) = 0.25 = 0.5 \times 0.5$
+  
+    \column{0.4\textwidth}
+    \includegraphics[width=0.6\linewidth]{figs/toss.png}
+\end{columns}
+  
+
+  \vspace{1em}
+  \textit{Knowing the result of one coin doesn’t affect the other. That’s independence!}
+\end{frame}
+
+\begin{frame}{Conditional Independence}
+  \textbf{Conditional independence:} Two events are independent, given a third.
+
+  \vspace{1em}
+  \[
+    A \perp B \mid C \quad \Leftrightarrow \quad P(A, B \mid C) = P(A \mid C) \cdot P(B \mid C)
+  \]
+
+  \vspace{1em}
+  \begin{columns}
+    \column{0.6\textwidth}
+\textbf{Example:} Sprinkler (S) and Rain (R) both influence Wet Grass (W).\\
+  The events S and R are independent. S doesn't depend on whether it is raining. Similarly, Raining doesn't depend on whether it is Sprinkling.
+
+  \vspace{0.5em}
+  $P(S,R) = P(S) \cdot P(R)$
+  
+    \column{0.4\textwidth}
+    \includegraphics[width=\linewidth]{figs/grass.jpg}
+\end{columns}
+  
+
+  \vspace{1em}
+  \textbf{Conditional independence is key in graphical models.}
+\end{frame}
+
+\begin{frame}{Directed Graphical Models}
+  \textbf{Also called Bayesian Networks.}
+
+  \vspace{1em}
+  \textbf{Idea:} Use a directed graph to represent random variables and their dependencies.
+
+  \vspace{1em}
+  \begin{columns}
+    \column{0.6\textwidth}
+
+  \begin{itemize}
+    \item Nodes = Random Variables
+    \item Arrows = Direct influence / causal connection
+  \end{itemize}
+
+  \vspace{1em}
+  \textbf{Why useful?}
+  \begin{itemize}
+    \item Makes complex distributions manageable
+    \item Helps with reasoning and computation
+  \end{itemize}
+  
+    \column{0.4\textwidth}
+    \includegraphics[width=\linewidth]{figs/directed_graph.png}
+\end{columns}
+
+\end{frame}
+
+\begin{frame}{Factorizing a Joint Distribution}
+    \begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.8\textwidth]{figs/factorization.png}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{Expectation (Expected Value)}
+  \textbf{The expected value is the average outcome you'd expect in the long run.}
+\vspace{1em}
+    \begin{columns}
+    \column{0.6\textwidth}
+    
+  \textbf{For discrete variables:}
+  \[
+    \mathbb{E}[X] = \sum_x x \cdot P(X = x)
+  \]
+
+  \textbf{For continuous variables:}
+  \[
+    \mathbb{E}[X] = \int_{-\infty}^{\infty} x \cdot f(x) \, dx
+  \]
+    \column{0.4\textwidth}
+    \includegraphics[width=0.5\linewidth]{figs/dice.png}
+\end{columns}
+
+  
+
+  \vspace{1em}
+  \textbf{Example:} Roll a die $\rightarrow$ $\mathbb{E}[X] = 1\cdot \frac{1}{6} + 2\cdot \frac{1}{6} + 3\cdot \frac{1}{6} + \cdots + 6 \cdot \frac{1}{6} = 3.5$
+
+  \vspace{1em}
+  \textbf{Interpretation:} Think of it as the "center of gravity" of the distribution.
+\end{frame}
+
+\begin{frame}[plain]
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=\textwidth]{figs/expectation.png}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{Variance – How Spread Out is the Distribution?}
+  \textbf{Variance measures how much a random variable deviates from its mean.}
+
+  \vspace{1em}
+  \[
+    \text{Var}(X) = \mathbb{E}[(X - \mathbb{E}[X])^2]
+  \]
+  \begin{columns}
+    \column{0.6\textwidth}
+\textbf{Standard deviation = } $\sqrt{\text{Var}(X)}$
+
+  \vspace{1em}
+  \textbf{Intuition:}
+  \begin{itemize}
+    \item High variance $\rightarrow$ outcomes are spread out
+    \item Low variance $\rightarrow$ outcomes are close to the mean
+  \end{itemize}
+    \column{0.4\textwidth}
+    \includegraphics[width=0.7\textwidth]{figs/variance.png}
+\end{columns}
+
+  
+
+  \vspace{1em}
+  \textit{Imagine measuring the heights of basketball players vs. chess players!}
+\end{frame}
+
+
+\begin{frame}{Covariance – Relationship Between Two Variables}
+  \textbf{Covariance measures how two variables vary together.}
+
+  \vspace{1em}
+  \[
+    \text{Cov}(X, Y) = \mathbb{E}[(X - \mathbb{E}[X])(Y - \mathbb{E}[Y])]
+  \]
+
+  \textbf{Interpretation:}
+  \begin{itemize}
+    \item $\text{Cov}(X, Y) > 0$ $\rightarrow$ increase together
+    \item $\text{Cov}(X, Y) < 0$ $\rightarrow$ one increases, the other decreases
+    \item $\text{Cov}(X, Y) = 0$ $\rightarrow$ uncorrelated (but not always independent!)
+  \end{itemize}
+
+  \vspace{1em}
+  \textbf{Bonus:} Correlation is normalized covariance.
+\end{frame}
+
+\begin{frame}[plain]
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=\textwidth]{figs/covariance.jpg}
+	\end{figure}
+\end{frame}
+
+\begin{frame}{Change of Variables}
+  \textbf{What if we transform a random variable into a new one?}
+  \vspace{1em}
+  \begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.8\textwidth]{figs/change_of_variables.png}
+	\end{figure}
+  
+\end{frame}
+
+\begin{frame}{Change of Variables - 1D}
+  \begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.8\textwidth]{figs/1d.png}
+	\end{figure}
+  
+\end{frame}
+
+\begin{frame}{Change of Variables - 2D}
+  \begin{figure}[htbp]
+		\centering
+		\includegraphics[width=0.8\textwidth]{figs/2d.png}
+	\end{figure}
+  
+\end{frame}
+
+\begin{frame}{Plausible vs. Logical Inference}
+  \textbf{Logical inference:} Uses strict rules — only what’s definitely true.\\
+  \textbf{Plausible inference:} Operates under uncertainty — what's \textit{likely} true.
+
+  \vspace{1em}
+  \textbf{Example:}
+  \begin{block}{Logical Inference}
+    \textit{If it rains, the ground is wet.\\
+    It is raining.\\
+    $\Rightarrow$ The ground is wet.}
+  \end{block}
+
+  \begin{block}{Plausible Inference}
+    \textit{The ground is wet.\\
+    $\Rightarrow$ Maybe it rained? Maybe the sprinkler was on?}
+  \end{block}
+
+  \vspace{1em}
+  \textbf{Key Insight:} Plausible inference lets us reason \textit{backwards} from evidence.\\
+  This is the foundation of Bayesian thinking!
+\end{frame}
+
+\begin{frame}{Where Do Priors Come From?}
+  \textbf{Priors} represent what we believe before seeing any data.
+
+  \vspace{1em}
+  \textbf{But where do they come from?}
+
+    \begin{columns}
+    \column{0.6\textwidth}
+\begin{itemize}
+    \item \textbf{Subjective belief:} Our personal knowledge or intuition.\\
+    \textit{(e.g., “Coins are fair unless proven otherwise.”)}
+    
+    \item \textbf{Empirical estimates:} Based on past data.\\
+    \textit{(e.g., “Spam words appear in 70\% of past spam emails.”)}
+  \end{itemize}
+  
+    \column{0.4\textwidth}
+    \includegraphics[width=0.6\linewidth]{figs/prior.png}
+\end{columns}
+  
+
+  \vspace{1em}
+  \textbf{Note:} Priors are not magic — they reflect assumptions. Make them wisely.
+\end{frame}
+
+\begin{frame}{What Are Conjugate Priors?}
+  When you do Bayesian inference, you're updating a prior belief using data to get a posterior belief:
+
+  \vspace{1em}
+  \textbf{Bayes' Rule:}
+  \[
+    \text{Posterior} \propto \text{Likelihood} \times \text{Prior}
+  \]
+
+  \vspace{1em}
+  Sometimes, after multiplying the prior and the likelihood, the result (posterior) belongs to the same family as the prior.
+
+  \vspace{1em}
+  That’s called a \textbf{conjugate prior}.
+\end{frame}
+
+\begin{frame}{Step 1 — Prior Belief}
+  \textbf{We want to estimate the probability of heads, $\theta$, for a coin (baised).}
+
+  \vspace{1em}
+  \textbf{Before flipping the coin, we assume:}
+  \[
+    \theta \sim \text{Beta}(\alpha = 2,\; \beta = 2)
+  \]
+
+  \vspace{0.5em}
+  This means:
+  \begin{itemize}
+    \item We believe the coin is fair (symmetric Beta)
+    \item It’s like we've seen 1 head and 1 tail before
+  \end{itemize}
+
+  \vspace{1em}
+  \textit{This is our prior belief. Now let’s collect data...}
+\end{frame}
+
+\begin{frame}{Step 2 — Observe Data}
+  \textbf{We flip the coin 10 times and observe:}
+  \[
+    7 \text{ heads, } 3 \text{ tails}
+  \]
+
+  \vspace{1em}
+  This is modeled as:
+  \[
+    X \sim \text{Binomial}(n = 10, \theta)
+  \]
+
+  \vspace{1em}
+  \textit{Now we update our prior using Bayes' Rule...}
+\end{frame}
+
+\begin{frame}{Step 3 — Posterior Belief}
+  \textbf{Using Bayes' Rule, our new belief is:}
+  \[
+    \theta \mid \text{data} \sim \text{Beta}(\alpha + \text{heads},\; \beta + \text{tails})
+  \]
+
+  \vspace{1em}
+  In our case:
+  \[
+    \theta \mid \text{data} \sim \text{Beta}(2 + 7,\; 2 + 3) = \text{Beta}(9, 5)
+  \]
+
+  \vspace{1em}
+  \textbf{Interpretation:}
+  \begin{itemize}
+    \item We've updated our belief based on observed data
+    \item Posterior is still a Beta distribution — conjugacy!
+  \end{itemize}
+
+  \vspace{1em}
+  \textit{This makes Bayesian updating fast and intuitive.}
+\end{frame}
+
+\begin{frame}{Tractable Gaussian Inference}
+  \textbf{Gaussian distributions make Bayesian inference easy and exact.}
+
+  \vspace{1em}
+  \begin{columns}
+    \column{0.6\textwidth}
+Suppose we have:
+  \[
+    \theta \sim \mathcal{N}(\mu_0, \sigma_0^2) \quad \text{(Prior)}
+  \]
+  \[
+    x \mid \theta \sim \mathcal{N}(\theta, \sigma^2) \quad \text{(Likelihood)}
+  \]
+
+  \vspace{1em}
+  Then the posterior is also Gaussian:
+  \[
+    \theta \mid x \sim \mathcal{N}(\mu_{\text{post}}, \sigma_{\text{post}}^2)
+  \]
+  
+    \column{0.4\textwidth}
+    \includegraphics[width=0.8\linewidth]{figs/gaussian.png}
+\end{columns}
+  
+
+  \vspace{0.5em}
+  \textbf{Key Benefits:}
+  \begin{itemize}
+    \item Conjugate: Gaussian prior + Gaussian likelihood = Gaussian posterior
+    \item Easy to compute mean and variance updates
+    \item Widely used in Kalman filters, linear regression, etc.
+  \end{itemize}
+
+\end{frame}
+
+
+\begin{frame}[plain,noframenumbering]
+	\begin{figure}[htbp]
+		\centering
+		\includegraphics[width=\textwidth]{figs/thanks.png}
+	\end{figure}
+\end{frame}
+
+
+
+\end{document}

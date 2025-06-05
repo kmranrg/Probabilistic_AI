@@ -1,0 +1,233 @@
+\documentclass[handout,aspectratio=169]{beamer}
+\input{commands_pkg}
+\input{commands_math}
+\input{commands_theme}
+\usepackage{amsmath}
+\graphicspath{{figs/fig00/}}
+%-----------------
+%	TITLE
+%-----------------
+\title{
+Chapter 03: Filtering
+}
+\author{\bf Notes by Kumar Anurag}
+\date{}
+
+%-----------------
+%	SUBTITLE
+%-----------------
+\subtitle{
+Probabilistic Artificial Intelligence
+}
+
+\begin{document}
+
+%-----------------
+%	TITLE PAGE
+%-----------------
+{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{figs/titlepic.png}}
+	\begin{frame}[plain,noframenumbering]
+		\maketitle
+	\end{frame}}
+
+
+%-----------------------
+%	PRESENTATION SLIDES
+%-----------------------
+
+\begin{frame}{The Story of Blindfolded Robot}
+
+\textbf{Imagine:}
+
+\begin{columns}
+    \column{0.6\textwidth}
+\begin{itemize}
+  \item A robot is navigating down a hallway, but it’s \textbf{blindfolded}.
+  \item It can’t see where it is — it only has a noisy distance sensor and a map of the hallway.
+  \item At each step, it must decide:
+  \begin{itemize}
+    \item Where it \textit{thinks} it is,
+    \item How to move next,
+    \item And how to adjust based on new noisy sensor readings.
+  \end{itemize}
+\end{itemize}
+
+\vspace{1em}
+\textbf{The robot’s challenge is exactly what filtering solves:}
+\begin{quote}
+  \centering
+  \emph{“Estimate where you are over time — with incomplete and uncertain information.”}
+\end{quote}
+
+    \column{0.4\textwidth}
+    \begin{center}
+		\includegraphics[width=\linewidth]{chapter_figs/02_figs/blind_folded_robot.png}
+\end{center}
+\end{columns}
+
+
+\end{frame}
+
+\begin{frame}{What is Filtering? The Core Problem}
+
+\textbf{Filtering} is about estimating the \textbf{hidden state} of a system over time, using a stream of noisy observations.
+
+\vspace{0.8em}
+\begin{block}{Why it’s harder than regular regression}
+\begin{itemize}
+  \item The unknown (state) keeps changing.
+  \item The observations are noisy and only partially informative.
+  \item We must update our estimate \textit{as new data arrives}.
+\end{itemize}
+\end{block}
+
+\vspace{0.8em}
+\textbf{We need:}
+\begin{itemize}
+  \item A \textbf{dynamics model}: How the state evolves over time.
+  \item An \textbf{observation model}: How observations relate to the state.
+\end{itemize}
+
+\vspace{0.8em}
+\textbf{Applications:}
+\begin{itemize}
+  \item Self-driving cars, speech recognition, finance, robotics, weather prediction...
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}{State Space Models (SSMs)}
+
+\textbf{Let’s formalize the blindfolded robot’s world.}
+
+\vspace{1em}
+\begin{itemize}
+  \item \textbf{Hidden States:} \( X_t \in \mathbb{R}^d \)
+  \begin{itemize}
+    \item The robot’s true position, speed, or internal state at time \( t \).
+    \item Not directly visible — we want to estimate it!
+  \end{itemize}
+
+  \vspace{0.6em}
+  \item \textbf{Observations:} \( Y_t \in \mathbb{R}^m \)
+  \begin{itemize}
+    \item Sensor readings at time \( t \).
+    \item Noisy, partial glimpses of the hidden state.
+  \end{itemize}
+
+  \vspace{0.6em}
+  \item \textbf{Goal:} Given observations up to time \( t \), i.e. \( Y_{1:t} \),
+  \begin{itemize}
+    \item Estimate the current state \( X_t \).
+    \item Sometimes even forecast future states \( X_{t+1}, X_{t+2}, \dots \)
+  \end{itemize}
+\end{itemize}
+
+\vspace{1em}
+\begin{block}{Key Idea}
+SSMs capture how the world evolves (\textit{state transition}) and how we perceive it (\textit{observation model}).
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Bayesian Filtering: The Big Picture}
+
+\textbf{Our Goal:} Maintain a belief about the hidden state \( X_t \) as we receive observations \( Y_{1:t} \).
+
+\vspace{1em}
+\begin{block}{Recursive Bayesian Estimation}
+At every time step, we perform two key operations:
+\end{block}
+
+\vspace{0.5em}
+\textbf{1. Prediction (Time Update):}
+\[
+p(X_{t} \mid Y_{1:t-1}) = \int p(X_t \mid X_{t-1}) \, p(X_{t-1} \mid Y_{1:t-1}) \, dX_{t-1}
+\]
+
+\vspace{0.5em}
+\textbf{2. Update (Measurement Correction):}
+\[
+p(X_t \mid Y_{1:t}) \propto p(Y_t \mid X_t) \, p(X_t \mid Y_{1:t-1})
+\]
+
+\vspace{0.5em}
+\textbf{Repeat:} These steps are performed in a loop as new data arrives.
+\end{frame}
+
+\begin{frame}{Figure 3.1: How Bayesian Filtering Works}
+
+\begin{columns}
+\column{0.4\textwidth}
+\includegraphics[width=\linewidth]{chapter_figs/02_figs/3_1.png} 
+
+\column{0.6\textwidth}
+\textbf{Explanation:}
+\begin{itemize}
+  \item The \textbf{true world state} evolves over time: \( \text{world}_t \to \text{world}_{t+1} \).
+  \item The agent perceives each state through noisy data: \( D_t, D_{t+1} \).
+  \item Based on its observations \( D_{1:t} \), it maintains a belief (posterior) over the hidden variables: 
+  \[
+  p(\theta \mid D_{1:t})
+  \]
+  \item At each time step, the agent:
+  \begin{enumerate}
+    \item \textbf{Updates} its belief using new data.
+    \item \textbf{Predicts} the next state of the world.
+  \end{enumerate}
+\end{itemize}
+\end{columns}
+
+\begin{block}{Core Idea}
+Filtering is the cycle of \textit{observe \rightarrow update belief \rightarrow  predict \rightarrow  repeat}.
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Introducing the Kalman Filter}
+
+\textbf{Kalman Filter:} A powerful, tractable solution to the filtering problem — when everything is linear and Gaussian.
+
+
+\begin{block}{Assumptions}
+\begin{itemize}
+  \item Initial state: Gaussian prior over \( X_0 \)
+  \item Dynamics model: Linear with Gaussian process noise
+  \item Observation model: Linear with Gaussian measurement noise
+\end{itemize}
+\end{block}
+
+
+\textbf{Why it's useful:}
+\begin{itemize}
+  \item The belief at each step — the posterior \( p(X_t \mid Y_{1:t}) \) — stays Gaussian.
+  \item All filtering steps (prediction and update) have closed-form analytical solutions.
+\end{itemize}
+
+
+\begin{block}{Key Insight}
+\textit{Linear-Gaussian systems allow exact, recursive inference — no sampling or approximations needed.}
+\end{block}
+
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{chapter_figs/02_figs/thankyou.png}}
+	\begin{frame}[plain,noframenumbering]
+	\end{frame}}
+
+
+
+\end{document}

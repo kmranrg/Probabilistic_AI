@@ -3,7 +3,7 @@
 \input{commands_math}
 \input{commands_theme}
 \usepackage{amsmath}
-\graphicspath{{figs/fig00/}}
+\graphicspath{{chapter_figs/01_figs/fig00/}}
 %-----------------
 %	TITLE
 %-----------------
@@ -25,7 +25,7 @@ Probabilistic Artificial Intelligence
 %-----------------
 %	TITLE PAGE
 %-----------------
-{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{figs/titlepic.png}}
+{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{chapter_figs/01_figs/titlepic.png}}
 	\begin{frame}[plain,noframenumbering]
 		\maketitle
 	\end{frame}}
@@ -52,7 +52,7 @@ Probabilistic Artificial Intelligence
 		\textbf{The robot doesn’t know for sure—it must \textit{reason under uncertainty}.}
 		    
 		\column{0.4\textwidth}
-		\includegraphics[width=\linewidth]{figs/robot_rain.png}
+		\includegraphics[width=\linewidth]{chapter_figs/01_figs/robot_rain.png}
 	\end{columns}
 	
 	\vspace{1em}
@@ -70,7 +70,7 @@ Probabilistic Artificial Intelligence
 			(\Omega, \mathcal{A}, P)
 		\]
 		\column{0.4\textwidth}
-		\includegraphics[width=\linewidth]{figs/space.jpg}
+		\includegraphics[width=\linewidth]{chapter_figs/01_figs/space.jpg}
 	\end{columns}
 	\begin{itemize}
 		\item $\Omega$ – All possible outcomes. \\
@@ -88,7 +88,7 @@ Probabilistic Artificial Intelligence
 \begin{frame}{Sigma-Algebra}
   \begin{figure}[htbp]
 		\centering
-		\includegraphics[width=\textwidth]{figs/sigma_algebra.png}
+		\includegraphics[width=\textwidth]{chapter_figs/01_figs/sigma_algebra.png}
 	\end{figure}
 \end{frame}
 
@@ -110,7 +110,7 @@ Probabilistic Artificial Intelligence
 		\textbf{RV turns uncertain outcomes into usable numbers.}
 		
 		\column{0.4\textwidth}
-		\includegraphics[width=\linewidth]{figs/rv_mapping.png}
+		\includegraphics[width=\linewidth]{chapter_figs/01_figs/rv_mapping.png}
 	\end{columns}
 \end{frame}
 
@@ -127,7 +127,7 @@ Probabilistic Artificial Intelligence
 		\end{itemize}
 		              
 		\column{0.4\textwidth}
-		\includegraphics[width=\linewidth]{figs/probability_distribution.png}
+		\includegraphics[width=\linewidth]{chapter_figs/01_figs/probability_distribution.png}
 	\end{columns}
 	    
 	\begin{itemize}
@@ -177,7 +177,7 @@ Probabilistic Artificial Intelligence
 		\end{itemize}
 		  
 		\column{0.4\textwidth}
-		\includegraphics[width=\linewidth]{figs/pdf.png}
+		\includegraphics[width=\linewidth]{chapter_figs/01_figs/pdf.png}
 	\end{columns}
 	  
 	
@@ -207,7 +207,7 @@ Probabilistic Artificial Intelligence
 		\vspace{0.5em}
 		  
 		\column{0.4\textwidth}
-		\includegraphics[width=\linewidth]{figs/joint_probability_diagram.png}
+		\includegraphics[width=\linewidth]{chapter_figs/01_figs/joint_probability_diagram.png}
 	\end{columns}
 	  
 	\textit{We'll use this table on the next slide to compute marginal probabilities.}
@@ -245,7 +245,7 @@ Probabilistic Artificial Intelligence
   \textbf{Example:} What is the chance it’s raining \textit{given} we see someone with an umbrella?
   
     \column{0.4\textwidth}
-\includegraphics[width=0.6\linewidth]{figs/conditional.png}
+\includegraphics[width=0.6\linewidth]{chapter_figs/01_figs/conditional.png}
     
 \end{columns}
   
@@ -295,7 +295,7 @@ Probabilistic Artificial Intelligence
   \quad $P(A \cap B) = 0.25 = 0.5 \times 0.5$
   
     \column{0.4\textwidth}
-    \includegraphics[width=0.6\linewidth]{figs/toss.png}
+    \includegraphics[width=0.6\linewidth]{chapter_figs/01_figs/toss.png}
 \end{columns}
   
 
@@ -321,7 +321,7 @@ Probabilistic Artificial Intelligence
   $P(S,R) = P(S) \cdot P(R)$
   
     \column{0.4\textwidth}
-    \includegraphics[width=\linewidth]{figs/grass.jpg}
+    \includegraphics[width=\linewidth]{chapter_figs/01_figs/grass.jpg}
 \end{columns}
   
 
@@ -352,7 +352,7 @@ Probabilistic Artificial Intelligence
   \end{itemize}
   
     \column{0.4\textwidth}
-    \includegraphics[width=\linewidth]{figs/directed_graph.png}
+    \includegraphics[width=\linewidth]{chapter_figs/01_figs/directed_graph.png}
 \end{columns}
 
 \end{frame}
@@ -360,7 +360,7 @@ Probabilistic Artificial Intelligence
 \begin{frame}{Factorizing a Joint Distribution}
     \begin{figure}[htbp]
 		\centering
-		\includegraphics[width=0.8\textwidth]{figs/factorization.png}
+		\includegraphics[width=0.8\textwidth]{chapter_figs/01_figs/factorization.png}
 	\end{figure}
 \end{frame}
 
@@ -380,7 +380,7 @@ Probabilistic Artificial Intelligence
     \mathbb{E}[X] = \int_{-\infty}^{\infty} x \cdot f(x) \, dx
   \]
     \column{0.4\textwidth}
-    \includegraphics[width=0.5\linewidth]{figs/dice.png}
+    \includegraphics[width=0.5\linewidth]{chapter_figs/01_figs/dice.png}
 \end{columns}
 
   
@@ -395,7 +395,7 @@ Probabilistic Artificial Intelligence
 \begin{frame}[plain]
 	\begin{figure}[htbp]
 		\centering
-		\includegraphics[width=\textwidth]{figs/expectation.png}
+		\includegraphics[width=\textwidth]{chapter_figs/01_figs/expectation.png}
 	\end{figure}
 \end{frame}
 
@@ -417,7 +417,7 @@ Probabilistic Artificial Intelligence
     \item Low variance $\rightarrow$ outcomes are close to the mean
   \end{itemize}
     \column{0.4\textwidth}
-    \includegraphics[width=0.7\textwidth]{figs/variance.png}
+    \includegraphics[width=0.7\textwidth]{chapter_figs/01_figs/variance.png}
 \end{columns}
 
   
@@ -449,7 +449,7 @@ Probabilistic Artificial Intelligence
 \begin{frame}[plain]
 	\begin{figure}[htbp]
 		\centering
-		\includegraphics[width=\textwidth]{figs/covariance.jpg}
+		\includegraphics[width=\textwidth]{chapter_figs/01_figs/covariance.jpg}
 	\end{figure}
 \end{frame}
 
@@ -458,7 +458,7 @@ Probabilistic Artificial Intelligence
   \vspace{1em}
   \begin{figure}[htbp]
 		\centering
-		\includegraphics[width=0.8\textwidth]{figs/change_of_variables.png}
+		\includegraphics[width=0.8\textwidth]{chapter_figs/01_figs/change_of_variables.png}
 	\end{figure}
   
 \end{frame}
@@ -466,7 +466,7 @@ Probabilistic Artificial Intelligence
 \begin{frame}{Change of Variables - 1D}
   \begin{figure}[htbp]
 		\centering
-		\includegraphics[width=0.8\textwidth]{figs/1d.png}
+		\includegraphics[width=0.8\textwidth]{chapter_figs/01_figs/1d.png}
 	\end{figure}
   
 \end{frame}
@@ -474,7 +474,7 @@ Probabilistic Artificial Intelligence
 \begin{frame}{Change of Variables - 2D}
   \begin{figure}[htbp]
 		\centering
-		\includegraphics[width=0.8\textwidth]{figs/2d.png}
+		\includegraphics[width=0.8\textwidth]{chapter_figs/01_figs/2d.png}
 	\end{figure}
   
 \end{frame}
@@ -518,7 +518,7 @@ Probabilistic Artificial Intelligence
   \end{itemize}
   
     \column{0.4\textwidth}
-    \includegraphics[width=0.6\linewidth]{figs/prior.png}
+    \includegraphics[width=0.6\linewidth]{chapter_figs/01_figs/prior.png}
 \end{columns}
   
 
@@ -622,7 +622,7 @@ Suppose we have:
   \]
   
     \column{0.4\textwidth}
-    \includegraphics[width=0.8\linewidth]{figs/gaussian.png}
+    \includegraphics[width=0.8\linewidth]{chapter_figs/01_figs/gaussian.png}
 \end{columns}
   
 
@@ -640,7 +640,7 @@ Suppose we have:
 \begin{frame}[plain,noframenumbering]
 	\begin{figure}[htbp]
 		\centering
-		\includegraphics[width=\textwidth]{figs/thanks.png}
+		\includegraphics[width=\textwidth]{chapter_figs/01_figs/thanks.png}
 	\end{figure}
 \end{frame}
 

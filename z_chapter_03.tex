@@ -25,7 +25,7 @@ Probabilistic Artificial Intelligence
 %-----------------
 %	TITLE PAGE
 %-----------------
-{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{figs/titlepic.png}}
+{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{chapter_figs/01_figs/titlepic.png}}
 	\begin{frame}[plain,noframenumbering]
 		\maketitle
 	\end{frame}}
@@ -61,7 +61,7 @@ Probabilistic Artificial Intelligence
 
     \column{0.4\textwidth}
     \begin{center}
-		\includegraphics[width=\linewidth]{chapter_figs/02_figs/blind_folded_robot.png}
+		\includegraphics[width=\linewidth]{chapter_figs/03_figs/blind_folded_robot.png}
 \end{center}
 \end{columns}
 
@@ -159,7 +159,7 @@ p(X_t \mid Y_{1:t}) \propto p(Y_t \mid X_t) \, p(X_t \mid Y_{1:t-1})
 
 \begin{columns}
 \column{0.4\textwidth}
-\includegraphics[width=\linewidth]{chapter_figs/02_figs/3_1.png} 
+\includegraphics[width=\linewidth]{chapter_figs/03_figs/3_1.png} 
 
 \column{0.6\textwidth}
 \textbf{Explanation:}
@@ -255,7 +255,7 @@ Filtering is the cycle of \textit{observe \rightarrow update belief \rightarrow 
 \end{itemize}
 
     \column{0.3\textwidth}
-    \includegraphics[width=\textwidth]{chapter_figs/02_figs/3_2.png} 
+    \includegraphics[width=\textwidth]{chapter_figs/03_figs/3_2.png} 
 \end{columns}
 
 \begin{block}{Conditional Independencies}
@@ -323,14 +323,14 @@ Filtering is the cycle of \textit{observe \rightarrow update belief \rightarrow 
 
 \begin{frame}{Algorithm: Bayesian Filtering}
 
-\includegraphics[width=0.8\textwidth]{chapter_figs/02_figs/algorithm.png} 
+\includegraphics[width=0.8\textwidth]{chapter_figs/03_figs/algorithm.png} 
 \end{frame}
 
 \begin{frame}{Bayesian Filtering: Prediction and Conditioning}
 \begin{block}{1. Conditioning (Update Step)}
 \textit{Incorporate new observation \( Y_t \) to refine belief about \( X_t \)}
 \[
-p(X_t \mid Y_{1:t}) \propto p(X_t \mid Y_{1:t-1}) \cdot p(Y_t \mid X_t) \tag{3.8}
+p(X_t \mid Y_{1:t}) \propto p(Y_t \mid X_t) \cdot p(X_t \mid Y_{1:t-1}) \tag{3.8}
 \]
 \begin{itemize}
   \item Combines the prior (predicted) belief with the new observation.
@@ -353,6 +353,305 @@ p(X_{t+1} \mid Y_{1:t}) = \int p(X_{t+1} \mid X_t) \cdot p(X_t \mid Y_{1:t}) \, 
 
 \end{frame}
 
+\begin{frame}{Deriving the Conditioning (Update) Step}
+
+\textbf{Goal:} Update belief about current state given a new observation:
+\[
+p(X_t \mid Y_{1:t}) = \text{posterior}
+\]
+
+\textbf{Start from:}
+\[
+p(X_t \mid Y_{1:t}) = p(X_t \mid Y_t, Y_{1:t-1})
+\]
+
+\textbf{Apply Bayes’ Rule:}
+\[
+p(X_t \mid Y_{1:t}) \propto p(Y_t \mid X_t, Y_{1:t-1}) \cdot p(X_t \mid Y_{1:t-1})
+\]
+
+\textbf{Use Conditional Independence (Eq. 3.6):}
+\[
+Y_t \perp Y_{1:t-1}, X_{1:t-1} \setminus X_t \mid X_t \Rightarrow p(Y_t \mid X_t, Y_{1:t-1}) = p(Y_t \mid X_t)
+\]
+
+\textbf{Final form:}
+\[
+p(X_t \mid Y_{1:t}) \propto p(Y_t \mid X_t) \cdot p(X_t \mid Y_{1:t-1}) \tag{3.8}
+\]
+
+\begin{block}{Interpretation}
+\textbf{Posterior} \( \propto \) \textbf{Likelihood} \( \times \) \textbf{Prior}
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Deriving the Prediction Step}
+
+\textbf{Goal:} Predict the next state before the next observation arrives:
+\[
+p(X_{t+1} \mid Y_{1:t})
+\]
+
+\textbf{Step 1: Apply marginalization}
+\[
+p(X_{t+1} \mid Y_{1:t}) = \int p(X_{t+1}, X_t \mid Y_{1:t}) \, dX_t
+\]
+
+\textbf{Step 2: Use the product rule}
+\[
+= \int p(X_{t+1} \mid X_t, Y_{1:t}) \cdot p(X_t \mid Y_{1:t}) \, dX_t
+\]
+
+\textbf{Step 3: Apply the Markov Property (Eq. 3.4):}
+\[
+X_{t+1} \perp Y_{1:t} \mid X_t \Rightarrow p(X_{t+1} \mid X_t, Y_{1:t}) = p(X_{t+1} \mid X_t)
+\]
+
+\textbf{Final Result:}
+\[
+p(X_{t+1} \mid Y_{1:t}) = \int p(X_{t+1} \mid X_t) \cdot p(X_t \mid Y_{1:t}) \, dX_t \tag{3.9}
+\]
+
+\end{frame}
+
+\begin{frame}{Kalman Filter: The Prediction Step}
+
+\textbf{Given:} Posterior at time \( t \):
+\[
+X_t \mid Y_{1:t} \sim \mathcal{N}(\mu_t, \Sigma_t)
+\]
+
+\textbf{We want:} Predictive belief for time \( t+1 \):
+\[
+X_{t+1} \mid Y_{1:t} \sim \mathcal{N}(\hat{\mu}_{t+1}, \hat{\Sigma}_{t+1})
+\]
+
+\textbf{Apply the transition model:}
+\[
+X_{t+1} = F X_t + \varepsilon_t, \quad \varepsilon_t \sim \mathcal{N}(0, \Sigma_x)
+\]
+
+\begin{block}{Predicted Mean (Eq. 3.20)}
+\[
+\hat{\mu}_{t+1} = F \mu_t
+\]
+\end{block}
+
+\begin{block}{Predicted Covariance (Eq. 3.21)}
+\[
+\hat{\Sigma}_{t+1} = F \Sigma_t F^\top + \Sigma_x
+\]
+\end{block}
+\end{frame}
+
+\begin{frame}{Kalman Filter: The Update Step}
+
+\textbf{We have:}
+\begin{itemize}
+  \item Prior prediction: \( X_{t+1} \mid Y_{1:t} \sim \mathcal{N}(\hat{\mu}_{t+1}, \hat{\Sigma}_{t+1}) \)
+  \item New observation: \( Y_{t+1} = H X_{t+1} + \eta_{t+1}, \; \eta_{t+1} \sim \mathcal{N}(0, \Sigma_y) \)
+\end{itemize}
+
+\begin{block}{Kalman Gain (Eq. 3.18d)}
+\[
+K_{t+1} = \hat{\Sigma}_{t+1} H^\top \left( H \hat{\Sigma}_{t+1} H^\top + \Sigma_y \right)^{-1}
+\]
+\end{block}
+
+\begin{block}{Updated Mean (Eq. 3.18b)}
+\[
+\mu_{t+1} = \hat{\mu}_{t+1} + K_{t+1} \left( Y_{t+1} - H \hat{\mu}_{t+1} \right)
+\]
+\end{block}
+
+\begin{block}{Updated Covariance (Eq. 3.18c)}
+\[
+\Sigma_{t+1} = \left( I - K_{t+1} H \right) \hat{\Sigma}_{t+1}
+\]
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Example 3.4 – Random Walk in 1D}
+
+\textbf{System Setup:}
+
+\begin{itemize}
+  \item \textbf{State:} \( X_t \in \mathbb{R} \) (position on a line)
+  \item \textbf{Motion Model:}
+  \[
+    X_{t+1} = X_t + \varepsilon_t, \quad \varepsilon_t \sim \mathcal{N}(0, \sigma_x^2)
+  \]
+  \item \textbf{Sensor Model:}
+  \[
+    Y_t = X_t + \eta_t, \quad \eta_t \sim \mathcal{N}(0, \sigma_y^2)
+  \]
+  \item \textbf{Initial Belief:} \( X_0 \sim \mathcal{N}(\mu_0, \sigma_0^2) \)
+\end{itemize}
+
+\textbf{Kalman Filter simplifies to 1D:}
+
+\begin{itemize}
+  \item Prediction and update equations become scalar operations.
+  \item Still recursive!
+  \item Posterior: \( X_t \mid Y_{1:t} \sim \mathcal{N}(\mu_t, \sigma_t^2) \)
+\end{itemize}
+
+\begin{block}{Key Idea}
+Even this simple setup captures the trade-off between motion uncertainty and noisy observations.
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Random Walk – 1D Kalman Update (Eq. 3.13)}
+
+\textbf{Recall:}
+\begin{itemize}
+  \item Prior at time \( t \): \( X_t \mid Y_{1:t} \sim \mathcal{N}(\mu_t, \sigma_t^2) \)
+  \item Prediction for \( t+1 \): 
+  \[
+    X_{t+1} \mid Y_{1:t} \sim \mathcal{N}(\mu_{t+1}, \sigma_{t+1}^2 )
+  \]
+  \item Observation: \( Y_{t+1} = X_{t+1} + \eta_{t+1}, \; \eta_{t+1} \sim \mathcal{N}(0, \sigma_y^2) \)
+\end{itemize}
+
+\textbf{Update step (Eq. 3.13):}
+\[
+\mu_{t+1} = \frac{\sigma_y^2 \mu_t + (\sigma_t^2 + \sigma_x^2) Y_{t+1}}{\sigma_t^2 + \sigma_x^2 + \sigma_y^2}
+\]
+
+\[
+\sigma_{t+1}^2 = \frac{(\sigma_t^2 + \sigma_x^2) \sigma_y^2}{\sigma_t^2 + \sigma_x^2 + \sigma_y^2}
+\]
+
+\end{frame}
+
+\begin{frame}{Kalman Gain \( \lambda \) and Equivalent Update Forms}
+
+\textbf{Kalman Gain in 1D (Eq. 3.14):}
+\[
+\lambda = \frac{\sigma_t^2 + \sigma_x^2}{\sigma_t^2 + \sigma_x^2 + \sigma_y^2}
+\]
+
+\vspace{1em}
+\textbf{Updated Mean (Eq. 3.15, 3.16):}
+\[
+\mu_{t+1} = (1 - \lambda) \mu_t + \lambda Y_{t+1} \tag{3.15}
+\]
+\[
+= \mu_t + \lambda (Y_{t+1} - \mu_t) \tag{3.16}
+\]
+
+\vspace{0.8em}
+\textbf{Updated Variance (Eq. 3.17):}
+\[
+\sigma_{t+1}^2 = (1 - \lambda)(\sigma_t^2 + \sigma_x^2) = \lambda \sigma_y^2
+\]
+
+
+\end{frame}
+
+\begin{frame}{Bayesian Linear Regression as a Kalman Filter}
+
+\textbf{Problem Setup:}
+\begin{itemize}
+  \item We want to estimate a fixed but unknown weight vector \( w^* \in \mathbb{R}^d \)
+  \item Observations arrive sequentially: \( (x_t, y_t) \), where
+  \[
+    y_t = x_t^\top w^* + \eta_t, \quad \eta_t \sim \mathcal{N}(0, \sigma_n^2)
+  \]
+\end{itemize}
+
+\vspace{0.8em}
+\textbf{Kalman Filter Interpretation:}
+\begin{itemize}
+  \item Hidden state: \( X_t = w^* \) (constant!)
+  \item Transition model: \( X_{t+1} = X_t + 0 \) \rightarrow no process noise \rightarrow \( \Sigma_x = 0 \)
+  \item Sensor model:
+  \[
+    Y_t = x_t^\top X_t + \eta_t
+  \]
+  \item Observation matrix: \( H_t = x_t^\top \)
+\end{itemize}
+
+\begin{block}{Connection}
+\textit{Online Bayesian Linear Regression is Kalman Filtering with constant hidden state.}
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Bayesian Smoothing: LookingBackWithMoreInfo}
+
+\textbf{Filtering:} Estimates the current state using data \textbf{up to} time \( t \)
+\[
+p(X_k \mid Y_{1:k}) \quad \text{(for } k = t\text{)}
+\]
+
+\textbf{Smoothing:} Estimates a \textbf{past} state \( X_k \) using all data \textbf{up to a later time} \( t \)
+\[
+p(X_k \mid Y_{1:t}) \quad \text{where } k < t
+\]
+
+\textbf{Why Smooth?}
+\begin{itemize}
+  \item Gives more accurate estimate of \( X_k \) using future evidence.
+  \item Useful in offline settings (e.g., analyzing recorded sensor data).
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Bayesian Smoothing: LookingBackWithMoreInfo}
+\textbf{Key Equation (Eq. 3.10):} $$p(x_k \mid y_{1:t}) \propto p(x_k \mid y_{1:k}) \cdot p(y_{k+1:t} \mid x_k)$$
+\begin{itemize}
+  \item First term: filtering result
+  \item Second term: likelihood of future observations
+  \item Smoothing = Filtering + Backward Pass
+  \item We combine past estimate with future information for better accuracy
+\end{itemize}
+
+
+\end{frame}
+
+\begin{frame}{Kalman Smoothing: Fwd-Bkwd Estimation}
+
+\textbf{Filtering:} Real-time estimate
+\[
+p(X_k \mid Y_{1:k}) = \text{filtering posterior}
+\]
+
+\textbf{Smoothing:} Offline refinement
+\[
+p(X_k \mid Y_{1:t}) = \text{smoothing posterior}, \quad k < t
+\]
+
+\vspace{1em}
+\textbf{Linear-Gaussian Case:}
+\begin{itemize}
+  \item Both filtering and smoothing posteriors are Gaussian.
+  \item Can compute smoothing efficiently using a backward recursion.
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Kalman Smoothing: Fwd-Bkwd Estimation}
+\vspace{0.8em}
+\textbf{Key Equation (Eq. 3.11):}
+\[
+p(x_k \mid y_{1:t}) = \mathcal{N}(\tilde{\mu}_k, \tilde{\Sigma}_k)
+\]
+\begin{itemize}
+  \item Based on forward-filtered posterior \( p(x_k \mid y_{1:k}) \)
+  \item And the backward Kalman gain, derived from transition model
+\end{itemize}
+
+\vspace{1em}
+\begin{block}{Smoothing Algorithm = Filter Forward + Smooth Backward}
+\textit{Also called the Forward-Backward or Two-Filter smoother.}
+\end{block}
+
+\vspace{1em}
+\includegraphics[width=0.5\textwidth]{chapter_figs/03_figs/line.png}
+
+\end{frame}
 
 
 
@@ -362,7 +661,7 @@ p(X_{t+1} \mid Y_{1:t}) = \int p(X_{t+1} \mid X_t) \cdot p(X_t \mid Y_{1:t}) \, 
 
 
 
-{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{chapter_figs/02_figs/thankyou.png}}
+{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{chapter_figs/03_figs/thankyou.png}}
 	\begin{frame}[plain,noframenumbering]
 	\end{frame}}
 

@@ -211,9 +211,147 @@ Filtering is the cycle of \textit{observe \rightarrow update belief \rightarrow 
 
 \end{frame}
 
+\begin{frame}{Kalman Filter: Formal Definition}
+
+\textbf{The Kalman Filter is defined by three components:}
+
+\begin{enumerate}
+  \item \textbf{Initial State (Prior Belief):}
+  \[
+    X_0 \sim \mathcal{N}(\mu_0, \Sigma_0) \tag{3.1}
+  \]
+
+  \item \textbf{State Transition Model (Dynamics):}
+  \[
+    X_{t+1} = F X_t + \varepsilon_t, \quad \varepsilon_t \sim \mathcal{N}(0, \Sigma_x) \tag{3.2}
+  \]
+  \begin{itemize}
+    \item \( F \): State transition matrix (\( d \times d \))
+    \item \( \varepsilon_t \): Process noise (may include drift; zero-mean assumed here)
+  \end{itemize}
+
+  \item \textbf{Observation Model (Sensor):}
+  \[
+    Y_t = H X_t + \eta_t, \quad \eta_t \sim \mathcal{N}(0, \Sigma_y) \tag{3.3}
+  \]
+  \begin{itemize}
+    \item \( H \): Observation matrix (\( m \times d \))
+    \item \( \eta_t \): Measurement noise
+  \end{itemize}
+\end{enumerate}
+
+\textbf{Note:} \( F, H, \Sigma_x, \Sigma_y \) are assumed to be known (can be time-varying).
+
+\end{frame}
+
+\begin{frame}{Graphical Model and Conditional Independencies}
+
+\begin{columns}
+    \column{0.7\textwidth}
+    \textbf{Kalman Filter as a Probabilistic Graphical Model:}
+\begin{itemize}
+  \item Hidden state sequence: \( X_1 \rightarrow X_2 \rightarrow X_3 \rightarrow \dots \)
+  \item Each \( X_t \) emits an observation \( Y_t \)
+\end{itemize}
+
+    \column{0.3\textwidth}
+    \includegraphics[width=\textwidth]{chapter_figs/02_figs/3_2.png} 
+\end{columns}
+
+\begin{block}{Conditional Independencies}
+\begin{itemize}
+  \item \textbf{Markov Property (Eq. 3.4):}
+  \[
+    X_{t+1} \perp \!\!\! \perp X_{1:t-1}, Y_{1:t-1} \mid X_t
+  \]
+  Future state depends only on the current state.
+  \end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{Graphical Model and Conditional Independencies}
+\begin{block}{Conditional Independencies}
+\begin{itemize}
+  \item \textbf{Observation Dependence (Eq. 3.5):}
+  \[
+    Y_t \perp \!\!\! \perp X_{1:t-1} \mid X_t
+  \]
+  Observation depends only on the current state.
+
+  \item \textbf{Observation Independence (Eq. 3.6):}
+  \[
+    Y_t \perp \!\!\! \perp Y_{1:t-1} \mid X_{t-1}
+  \]
+  Given the past state, current observation is independent of past observations.
+\end{itemize}
+\end{block}
+
+\end{frame}
+
+\begin{frame}{The Goal: Online Recursive Estimation}
+
+\textbf{What we want:}
+\begin{itemize}
+  \item At each time \( t \), compute the belief:
+  \[
+    p(X_t \mid Y_{1:t})
+  \]
+  \item Without re-processing all past data from scratch!
+\end{itemize}
 
 
+\textbf{Why Online?}
+\begin{itemize}
+  \item Observations arrive sequentially in real-time.
+  \item We need to update our estimate efficiently and recursively.
+  \item No need to store all \( Y_{1:t} \) — just the current posterior!
+\end{itemize}
 
+
+\begin{block}{Recursive Filtering Loop}
+\begin{enumerate}
+  \item Predict: Use dynamics model to forecast next state.
+  \item Update: Incorporate new observation.
+  \item Repeat...
+\end{enumerate}
+\end{block}
+
+
+\textit{This is the essence of recursive Bayesian estimation.}
+
+\end{frame}
+
+\begin{frame}{Algorithm: Bayesian Filtering}
+
+\includegraphics[width=0.8\textwidth]{chapter_figs/02_figs/algorithm.png} 
+\end{frame}
+
+\begin{frame}{Bayesian Filtering: Prediction and Conditioning}
+\begin{block}{1. Conditioning (Update Step)}
+\textit{Incorporate new observation \( Y_t \) to refine belief about \( X_t \)}
+\[
+p(X_t \mid Y_{1:t}) \propto p(X_t \mid Y_{1:t-1}) \cdot p(Y_t \mid X_t) \tag{3.8}
+\]
+\begin{itemize}
+  \item Combines the prior (predicted) belief with the new observation.
+  \item Uses Bayes’ Rule.
+\end{itemize}
+\end{block}
+\end{frame}
+
+\begin{frame}{Bayesian Filtering: Prediction and Conditioning}
+\begin{block}{2. Prediction (Time Update Step)}
+\textit{Project the belief forward to estimate \( X_{t+1} \)}
+\[
+p(X_{t+1} \mid Y_{1:t}) = \int p(X_{t+1} \mid X_t) \cdot p(X_t \mid Y_{1:t}) \, dX_t \tag{3.9}
+\]
+\begin{itemize}
+  \item Uses the transition model to forecast the next state.
+  \item Allows filtering to continue over time.
+\end{itemize}
+\end{block}
+
+\end{frame}
 
 
 

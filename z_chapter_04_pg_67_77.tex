@@ -1,0 +1,499 @@
+\documentclass[handout,aspectratio=169]{beamer}
+\input{commands_pkg}
+\input{commands_math}
+\input{commands_theme}
+\usepackage{amsmath}
+\graphicspath{{figs/fig00/}}
+%-----------------
+%	TITLE
+%-----------------
+\title{
+Chapter 04: Gaussian Processes \\ Pages: 67-77
+}
+\author{\bf Notes by Kumar Anurag}
+\date{}
+
+%-----------------
+%	SUBTITLE
+%-----------------
+\subtitle{
+Probabilistic Artificial Intelligence
+}
+
+\begin{document}
+
+%-----------------
+%	TITLE PAGE
+%-----------------
+{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{chapter_figs/01_figs/titlepic.png}}
+	\begin{frame}[plain,noframenumbering]
+		\maketitle
+	\end{frame}}
+
+
+%-----------------------
+%	PRESENTATION SLIDES
+%-----------------------
+
+\begin{frame}{4.4 Model Selection}
+\begin{itemize}
+    \item So far, we assumed hyperparameters $\boldsymbol{\theta}$ (e.g., kernel parameters) are known.
+    \item In practice, we must learn $\boldsymbol{\theta}$ from data.
+    \item A common supervised learning technique:
+    \begin{itemize}
+        \item Pick $\boldsymbol{\theta}$ such that the resulting predictor $\hat{f}_\theta$ performs best on a hold-out validation set.
+    \end{itemize}
+    \item This is known as \textbf{point estimate-based model selection}.
+    \item Later, we’ll contrast it with a fully \textbf{Bayesian approach} that uses the posterior over $f$ instead of a point estimate.
+\end{itemize}
+\pause
+\vspace{0.3cm}
+
+\end{frame}
+
+\begin{frame}{4.4.1 Optimizing Validation Performance}
+\begin{itemize}
+    \item Split data $\mathcal{D}$ into:
+    \begin{itemize}
+        \item Training set $\mathcal{D}^{\text{train}} = \{(x^{\text{train}}_i, y^{\text{train}}_i)\}_{i=1}^n$
+        \item Validation set $\mathcal{D}^{\text{val}} = \{(x^{\text{val}}_j, y^{\text{val}}_j)\}_{j=1}^m$
+    \end{itemize}
+    \item Step 1: Train a model $\hat{f}_j$ for some candidate $\theta_j$ on the training set:
+    \[
+    \hat{f}_j \triangleq \arg\max_f p(f \mid x_{1:n}^{\text{train}}, y_{1:n}^{\text{train}}) \tag{4.22}
+    \]
+    \item Step 2: Select $\hat{\theta}$ based on validation performance:
+    \[
+    \hat{\theta} \triangleq \arg\max_{\theta_j} p(y_{1:m}^{\text{val}} \mid x_{1:m}^{\text{val}}, \hat{f}_j) \tag{4.23}
+    \]
+\end{itemize}
+\pause
+
+\end{frame}
+
+\begin{frame}{Why Validation Sets Help: Remark 4.8}
+\begin{block}{Approximating Population Risk}
+Minimizing loss on the same data used for training often leads to overfitting.
+
+Instead, use independent validation data to estimate risk:
+\[
+\frac{1}{m} \sum_{i=1}^{m} \ell(y_i^{\text{val}} \mid x_i^{\text{val}}, \hat{f}_j) \approx \mathbb{E}_{(x, y) \sim \mathcal{P}} \left[\ell(y \mid x, \hat{f}_j)\right] \tag{4.24}
+\]
+
+\begin{itemize}
+    \item This is an empirical approximation of the true population risk.
+    \item Helps prevent overfitting and ensures generalization.
+\end{itemize}
+\end{block}
+
+\pause
+\vspace{0.3cm}
+\textbf{Limitation:} Still relies on a \textit{point estimate} $\hat{f}_j$. Can we do better?
+\end{frame}
+
+\begin{frame}{Maximizing the Marginal Likelihood}
+\vspace{-0.2cm}
+\begin{itemize}
+    \item In Bayesian regression, we don’t want to pick a single function $\hat{f}$.
+    \item Instead, we want to score how likely the observed data is under all possible functions defined by kernel parameters $\theta$.
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{Marginal likelihood:}
+\[
+p(y_{1:n} \mid x_{1:n}, \theta) = \int p(y_{1:n} \mid x_{1:n}, f, \theta) \cdot p(f \mid \theta) \, df \tag{4.26}
+\]
+
+\pause
+\vspace{0.2cm}
+\textbf{Key idea:} We integrate over all functions $f$ rather than picking just one.
+
+\vspace{0.3cm}
+This gives us a more robust measure of how “compatible” $\theta$ is with the observed data.
+\end{frame}
+
+
+\begin{frame}{Why This Works — Intuition Behind the Math}
+\textbf{Marginal likelihood prefers models that:}
+\begin{itemize}
+    \item Fit the data well \rightarrow  \, high likelihood
+    \item Are not overly complex \rightarrow \, high prior probability
+\end{itemize}
+
+\begin{columns}
+    \column{0.6\textwidth}
+    \includegraphics[width=\linewidth]{chapter_figs/04_figs/table.png}
+    \column{0.4\textwidth}
+    \includegraphics[width=0.8\linewidth]{chapter_figs/04_figs/f48.png}
+\end{columns}
+
+
+
+
+\pause
+\vspace{0.3cm}
+\textbf{Conclusion:} Maximizing marginal likelihood automatically balances these two forces. 
+\end{frame}
+
+\begin{frame}{Marginal Likelihood for GPs}
+\vspace{-0.2cm}
+\textbf{Recall from GP prior:}
+\[
+y_{1:n} \mid x_{1:n}, \theta \sim \mathcal{N}(0, K_{f,\theta} + \sigma_n^2 I) \tag{4.27}
+\]
+
+Let $K_{y,\theta} = K_{f,\theta} + \sigma_n^2 I$
+
+\pause
+\vspace{0.3cm}
+Then the marginal likelihood becomes:
+\[
+p(y \mid x, \theta) = \mathcal{N}(y \mid 0, K_{y,\theta})
+\]
+
+Taking negative log:
+\[
+\mathcal{L}(\theta) = \frac{1}{2} y^\top K_{y,\theta}^{-1} y + \frac{1}{2} \log \det K_{y,\theta} + \frac{n}{2} \log 2\pi \tag{4.28}
+\]
+
+\pause
+\textbf{Breaking this down:}
+\begin{itemize}
+    \item $\boxed{y^\top K^{-1} y}$ — data fit (how well predictions match $y$)
+    \item $\boxed{\log \det K}$ — model complexity penalty
+    \item Constant term $\frac{n}{2} \log 2\pi$ — does not depend on $\theta$
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Marginal Likelihood for GPs}
+
+Drop the constant \rightarrow \, final objective:
+\[
+\hat{\theta}_{\text{MLE}} = \arg\min_\theta \left(
+\frac{1}{2} y^\top K_{y,\theta}^{-1} y + \frac{1}{2} \log \det K_{y,\theta}
+\right) \tag{4.29}
+\]
+\end{frame}
+
+\begin{frame}{Gradient of Log Marginal Likelihood}
+To optimize $\mathcal{L}(\theta)$, we need the gradient $\frac{\partial}{\partial \theta_j} \log p(y \mid x, \theta)$.
+
+\vspace{0.3cm}
+\textbf{GPs allow this in closed form:}
+\[
+\frac{\partial}{\partial \theta_j} \log p(y \mid x, \theta)
+= \frac{1}{2} \text{tr}\left[
+\left( \boldsymbol{\alpha} \boldsymbol{\alpha}^\top - K^{-1}_{y,\theta} \right)
+\frac{\partial K_{y,\theta}}{\partial \theta_j}
+\right] \tag{4.30}
+\]
+
+\pause
+\textbf{Where:}
+\begin{itemize}
+    \item $\boldsymbol{\alpha} = K_{y,\theta}^{-1} y$
+    \item $\frac{\partial K_{y,\theta}}{\partial \theta_j}$ is the derivative of the kernel matrix w.r.t. hyperparameter $\theta_j$
+    \item $\text{tr}(M)$ = trace of matrix $M$ (sum of diagonal elements)
+\end{itemize}
+
+\vspace{0.3cm}
+This allows gradient-based optimization (e.g. Adam, SGD).
+\end{frame}
+
+\begin{frame}{MAP and Full Bayesian Treatment of $\theta$}
+\textbf{MLE:} finds the best $\theta$ by maximizing $p(y \mid x, \theta)$, when no prior knowledge about $\theta$
+
+\pause
+\textbf{MAP:} adds a prior over $\theta$:
+\[
+\hat{\theta}_{\text{MAP}} = \arg\max_\theta \, p(\theta) \cdot p(y \mid x, \theta) \tag{4.31}
+\]
+
+Taking log:
+\[
+= \arg\min_\theta \left(
+- \log p(\theta) - \log p(y \mid x, \theta)
+\right) \tag{4.32}
+\]
+
+\pause
+\textbf{Fully Bayesian:} integrate out $\theta$
+\[
+p(y^* \mid x^*, \mathcal{D}) =
+\int \int p(y^* \mid x^*, f) \cdot p(f \mid \mathcal{D}, \theta) \cdot p(\theta) \, df \, d\theta \tag{4.33}
+\]
+
+\textbf{Challenge:} This integral is intractable in most practical cases.
+
+\pause
+So we often settle for MLE or MAP, or use variational approximations.
+\end{frame}
+
+\begin{frame}{4.5 Why Do We Need Approximations?}
+\textbf{Key issue: Computational Cost}
+
+\begin{itemize}
+    \item Gaussian Processes require inversion of an $n \times n$ matrix.
+    \item This costs:
+    \[
+    \mathcal{O}(n^3)
+    \]
+    \item For large datasets ($n \sim 10^4$ or more), this becomes very slow.
+    \item In contrast, Bayesian linear regression has lower cost:
+    \[
+    \mathcal{O}(nd^2)
+    \quad \text{where } d = \text{input feature dimension}
+    \]
+    \item Therefore, we look for ways to \textbf{approximate} a GP while preserving performance.
+\end{itemize}
+
+\vspace{0.3cm}
+\textcolor{gray}{Next: What happens when optimization isn't even guaranteed to find a global solution?}
+\end{frame}
+
+
+\begin{frame}{MLL Surface and Two GP Fits}
+\begin{columns}
+\column{0.55\textwidth}
+\textbf{Top plot:} Contour plot of negative log marginal likelihood (MLL)
+
+\begin{itemize}
+    \item Axes: Lengthscale $h$ vs noise std $\sigma_n$
+    \item Two '+' marks: local optima found during optimization
+    \item Shows that MLL can have multiple optima
+\end{itemize}
+
+\pause
+\vspace{0.3cm}
+\textbf{Bottom plots:} GP regression fits corresponding to the two optima
+
+\begin{itemize}
+    \item Left: small lengthscale, flexible model \rightarrow \, smooth interpolation
+    \item Right: large noise, rigid model \rightarrow \, explains variation as noise
+\end{itemize}
+
+\column{0.4\textwidth}
+\includegraphics[width=0.8\linewidth]{chapter_figs/04_figs/f410.png}
+\end{columns}
+
+\vspace{0.3cm}
+\textbf{Takeaway:} Hyperparameter learning is sensitive to initialization and optimization.
+\end{frame}
+
+\begin{frame}{4.5.1 Local Methods}
+\begin{itemize}
+    \item Forward sampling from a GP requires conditioning on all previous observations.
+    \item This becomes computationally expensive as $n$ grows.
+    \item One idea: Only condition on points “near” the test input $x$.
+    \item For example: keep only points $x'$ such that
+    \[
+    |k(x, x')| \geq \tau \quad \text{for some threshold } \tau > 0
+    \]
+    \item This “cuts off the tails” of the kernel — treating distant points as independent.
+\end{itemize}
+
+\pause
+\vspace{0.2cm}
+\textbf{Benefit:} Reduces computation.
+
+\textbf{Caution:} If $\tau$ is too large, we may lose important long-range correlations.
+
+\vspace{0.2cm}
+This is an example of a \textbf{sparse approximation} to a GP.
+\end{frame}
+
+\begin{frame}{4.5.2 Kernel Function Approximation}
+\textbf{Goal:} Approximate the kernel $k(x, x')$ directly using a low-dimensional feature map.
+
+\vspace{0.2cm}
+\textbf{Idea:}
+\[
+k(x, x') \approx \phi(x)^\top \phi(x') \tag{4.34}
+\]
+
+Then, apply Bayesian linear regression on $\phi(x)$ instead of GPs.
+
+\vspace{0.3cm}
+\textbf{Computational benefit:} Time complexity becomes:
+\[
+\mathcal{O}(nm^2 + m^3)
+\]
+where $m$ is the number of features.
+
+\vspace{0.3cm}
+\pause
+This leads us to \textbf{Random Fourier Features (RFF)}, where:
+- The feature map $\phi(x)$ is constructed from sine and cosine of random projections
+- Based on Fourier transform theory and Bochner's theorem
+\end{frame}
+
+\begin{frame}{Fourier View of Kernels}
+\textbf{Euler's identity:}
+\[
+e^{ix} = \cos x + i \sin x \tag{4.35}
+\]
+
+\textbf{Fourier transform:}
+\[
+\hat{f}(\xi) = \int_{\mathbb{R}^d} f(x) e^{-2\pi i \xi^\top x} \, dx \tag{4.36}
+\]
+\[
+f(x) = \int_{\mathbb{R}^d} \hat{f}(\xi) e^{2\pi i \xi^\top x} \, d\xi \tag{4.37}
+\]
+
+\pause
+\textbf{Stationary kernel as function of } $x - x'$:
+\[
+k(x - x') = \int_{\mathbb{R}^d} p(\omega) e^{i \omega^\top (x - x')} d\omega \tag{4.38}
+\]
+Bochner's theorem: $p(\omega)$ is the spectral density of $k$.
+
+\pause
+\textbf{Gaussian kernel’s spectral density:}
+\[
+p(\omega) = (2h^2 \pi)^{d/2} \exp \left( - h^2 \|\omega\|^2 / 2 \right) \tag{4.39}
+\]
+\end{frame}
+
+
+\begin{frame}{Random Fourier Features Approximation}
+Use Monte Carlo sampling over $\omega \sim p(\omega)$ and $b \sim \text{Unif}[0, 2\pi]$.
+
+\textbf{Define:}
+\[
+z_{\omega, b}(x) = \sqrt{2} \cos(\omega^\top x + b)
+\]
+
+Then:
+\[
+k(x, x') \approx z(x)^\top z(x') \tag{4.42}
+\]
+\[
+z(x) = \frac{1}{\sqrt{m}} \begin{bmatrix}
+z_{\omega^{(1)}, b^{(1)}}(x) \\
+\vdots \\
+z_{\omega^{(m)}, b^{(m)}}(x)
+\end{bmatrix} \tag{4.43}
+\]
+
+\vspace{0.3cm}
+\textbf{Theorem 4.13:} This approximation converges uniformly to the true kernel as $m \to \infty$
+
+\textbf{Benefit:} Fast kernel approximation, scalable GPs!
+\end{frame}
+
+\begin{frame}{4.5.3 Inducing Point Methods: Motivation}
+\textbf{Problem:} Using all $n$ training points in a GP is expensive.
+
+\vspace{0.2cm}
+\textbf{Idea:} Use a smaller set of \textbf{inducing points} to summarize the full data.
+
+\[
+U \triangleq \{\bar{x}_1, \dots, \bar{x}_k\}
+\quad \text{where } k \ll n
+\]
+
+\vspace{0.3cm}
+\textbf{We model:}
+\[
+u \triangleq \begin{bmatrix} f(\bar{x}_1) & \cdots & f(\bar{x}_k) \end{bmatrix}^\top
+\quad \sim \mathcal{N}(0, K_{UU})
+\]
+
+\vspace{0.3cm}
+\textbf{Recover full GP using marginalization:}
+\[
+p(f^*, f) = \int p(f^*, f \mid u) \, p(u) \, du \tag{4.45}
+\]
+
+\pause
+This lets us reduce computations while preserving most information.
+\end{frame}
+
+\begin{frame}{Subset of Regressors}
+\textbf{Approximation:} Assume $f$ and $f^*$ are conditionally independent given $u$:
+\[
+p(f^*, f) \approx \int p(f^* \mid u) \, p(f \mid u) \, p(u) \, du \tag{4.46}
+\]
+
+\pause
+\textbf{From Gaussian conditionals:}
+\begin{align*}
+p(f \mid u) &\sim \mathcal{N}(K_{AU} K_{UU}^{-1} u, \, K_{AA} - Q_{AA}) \tag{4.47a} \\
+p(f^* \mid u) &\sim \mathcal{N}(K_{\ast U} K_{UU}^{-1} u, \, K_{\ast\ast} - Q_{\ast\ast}) \tag{4.47b}
+\end{align*}
+
+Where $Q_{ab} = K_{aU} K_{UU}^{-1} K_{Ub}$
+
+\pause
+\textbf{Subset of Regressors (SoR):} keep the mean and drop the variances/covariances
+\begin{align*}
+q_{\text{SoR}}(f \mid u) &= \mathcal{N}(K_{AU}K_{UU}^{-1}u, 0) \tag{4.48a} \\
+q_{\text{SoR}}(f^* \mid u) &= \mathcal{N}(K_{\ast U}K_{UU}^{-1}u, 0) \tag{4.48b}
+\end{align*}
+\textbf{Drawback}: Since we drop the uncertainties in this approach, therefore, we may unrealistic predictions.
+\end{frame}
+
+\begin{frame}{Fully Independent Training Conditional}
+\pause
+\textbf{FITC (Fully Independent Training Conditional):}
+\begin{align*}
+q_{\text{FITC}}(f \mid u) &= \mathcal{N}(K_{AU}K_{UU}^{-1}u, \, \text{diag}(K_{AA} - Q_{AA})) \tag{4.49a} \\
+q_{\text{FITC}}(f^* \mid u) &= \mathcal{N}(K_{\ast U}K_{UU}^{-1}u, \, \text{diag}(K_{\ast\ast} - Q_{\ast\ast})) \tag{4.49b}
+\end{align*}
+
+\pause
+\textbf{Summary:}
+\begin{itemize}
+    \item SoR: keeps mean, discards all variance
+    \item FITC: keeps mean + variances, ignores off-diagonal covariances
+\end{itemize}
+\end{frame}
+
+\begin{frame}{Graph: SoR vs FITC}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.3\linewidth]{chapter_figs/04_figs/sor_fitc.png}
+\end{figure}
+
+    
+\end{frame}
+
+\begin{frame}{Discussion: GP Approximations in Practice}
+\begin{itemize}
+    \item GPs are flexible non-parametric models that reason over functions.
+    \item But exact inference becomes costly with large datasets.
+\end{itemize}
+
+\vspace{0.3cm}
+\textbf{This chapter introduced several ways to approximate GPs:}
+\begin{itemize}
+    \item \textbf{Local methods:} Use only nearby data points
+    \item \textbf{Kernel approximations:} RFF via Bochner’s theorem
+    \item \textbf{Inducing points:} Summarize data through select locations
+\end{itemize}
+
+\vspace{0.2cm}
+\textbf{Next:} We explore how to combine these probabilistic ideas with scalable models.
+\end{frame}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+{\usebackgroundtemplate{\includegraphics[width=\paperwidth]{chapter_figs/03_figs/thankyou.png}}
+	\begin{frame}[plain,noframenumbering]
+	\end{frame}}
+
+
+
+\end{document}
